@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hybrid Recommendations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            text-align: center;
+            padding: 40px;
+        }
+        h1 { color: #333; }
+        form { margin-bottom: 20px; }
+        input, select, button {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin: 5px;
+        }
+        button {
+            background: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background: #007BFF;
+            color: white;
+        }
+        tr:hover { background: #eef5ff; }
+        .rating {
+            color: #ffb400;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Hybrid Product Recommendations</h1>
+
+    <!-- Main user ID input form -->
+    <form method="POST" action="/">
+        <input type="text" name="user_id" placeholder="Enter User ID" required>
+        <button type="submit">Get Recommendations</button>
+    </form>
+
+    {% if new_user %}
+        <h2>👋 Welcome New User!</h2>
+        <p>We don’t have any history of you yet. Please share a few preferences so we can recommend products.</p>
+        <form method="POST" action="/save_preferences">
+            <input type="hidden" name="user_id" value="{{ user_id }}">
+            <input type="number" name="age" placeholder="Age" required><br>
+            <select name="gender" required>
+                <option value="">Select Gender</option>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Other</option>
+            </select><br>
+
+            <!-- Preferred Category dropdown -->
+            <select name="preferred_category" required>
+                <option value="">Select Preferred Category</option>
+                <option>Electronics</option>
+                <option>Fashion</option>
+                <option>Beauty</option>
+                <option>Home</option>
+                <option>Grocery</option>
+                <option>Sports</option>
+                <option>Toys</option>
+                <option>Books</option>
+                <option>Automotive</option>
+                <option>Health</option>
+            </select><br>
+
+            <button type="submit">Save & Get Recommendations</button>
+        </form>
+    {% endif %}
+
+    {% if recommendations is not none %}
+        {% if recommendations.empty %}
+            <p>❌ No recommendations found for this user.</p>
+        {% else %}
+            <h2>Recommendations for User {{ user_id }}</h2>
+            <table>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Brand</th>
+                    <th>Category</th>
+                    <th>Price (INR)</th>
+                    <th>Rating ⭐</th>
+                </tr>
+                {% for _, row in recommendations.iterrows() %}
+                    <tr>
+                        <td>{{ row['recommended_product_id'] if 'recommended_product_id' in row else row['product_id'] }}</td>
+                        <td>{{ row['product_name'] if 'product_name' in row else 'N/A' }}</td>
+                        <td>{{ row['brand'] if 'brand' in row else 'N/A' }}</td>
+                        <td>{{ row['category'] if 'category' in row else 'N/A' }}</td>
+                        <td>{{ row['price'] if 'price' in row else 'N/A' }}</td>
+                        <td class="rating">{{ row['rating'] if 'rating' in row else '-' }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+    {% endif %}
+</body>
+</html>
